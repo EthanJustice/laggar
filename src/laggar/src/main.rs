@@ -1,16 +1,16 @@
 // External crates
 use html2md::*;
-use crossterm::*;
-use reqwest::*;
-use termimad::*;
-use clap::*;
+// use crossterm::*;
+use reqwest::blocking;
+// use termimad::*;
+use clap::{App, Arg};
 
 fn main() {
-	let clap = clap::App::new("Laggar")
+	let clap = App::new("Laggar")
 		.version("0.1.0")
 		.author("Ethan Justice")
 		.about("site to markdown converter")
-		.arg(clap::Arg::with_name("download")
+		.arg(Arg::with_name("download")
 			.short("d")
 			.long("download")
 			.help("Download and convert a website")
@@ -19,4 +19,14 @@ fn main() {
 		).get_matches();
 
 	let url = clap.value_of("download").unwrap();
+	
+	let site = get_site(String::from(url));
+}
+
+fn get_site(url: String) -> Result<String, Box<dyn std::error::Error>> {
+	println!("Getting!");
+	let site = reqwest::blocking::get(&url)?
+		.text()?;
+	
+	Ok(site)
 }

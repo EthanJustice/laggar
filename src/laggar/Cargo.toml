@@ -10,5 +10,5 @@ edition = "2018"
 crossterm = "~0.17.5"
 html2md = "~0.2.9"
 termimad = "~0.8.24"
-reqwest = "~0.10.6"
+reqwest = { version = "~0.10.6", features = ["blocking"] }
 clap = "~2.33.1"
