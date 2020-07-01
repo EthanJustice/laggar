@@ -21,6 +21,11 @@ fn main() {
 	let url = clap.value_of("download").unwrap();
 	
 	let site = get_site(String::from(url));
+	
+	let md = match site {
+		Ok(data) => html2md::parse_html(data.as_str()),
+		Err(error) => panic!("Failed to download site: {}", error)
+	};
 }
 
 fn get_site(url: String) -> Result<String, Box<dyn std::error::Error>> {
