@@ -21,20 +21,28 @@ fn main() {
 			.required(true)
 		).get_matches();
 
-	let url = clap.value_of("download").unwrap();
-	
-	let site = get_site(String::from(url));
+	let url = parse_url(String::from(clap.value_of("download").unwrap()));
+
+	let site = get_site(&url);
 	
 	let md = match site {
 		Ok(data) => parse_html(data.as_str()),
 		Err(error) => panic!("Failed to download site: {}", error)
 	};
 
-	create_file(md, url);
+	create_file(md, &url);
 }
 
-fn get_site(url: String) -> Result<String, Box<dyn std::error::Error>> {
-	let site = blocking::get(&url)?
+fn parse_url(mut url: String) -> String {
+	if url.starts_with("http") == false {
+		url.insert_str(0, "http://");
+	}
+
+	url
+}
+
+fn get_site(url: &String) -> Result<String, Box<dyn std::error::Error>> {
+	let site = blocking::get(url)?
 		.text()?;
 	
 	Ok(site)
