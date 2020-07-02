@@ -3,9 +3,8 @@ use std::path::Path;
 
 // External crates
 use html2md::parse_html;
-// use crossterm::*;
+use crossterm::*;
 use reqwest::blocking;
-// use termimad::*;
 use clap::{App, Arg};
 
 fn main() {
@@ -41,7 +40,7 @@ fn parse_url(mut url: String) -> String {
 	url
 }
 
-fn get_site(url: &String) -> Result<String, Box<dyn std::error::Error>> {
+fn get_site(url: &String) -> std::result::Result<String, std::boxed::Box<dyn std::error::Error>> {
 	let site = blocking::get(url)?
 		.text()?;
 	
