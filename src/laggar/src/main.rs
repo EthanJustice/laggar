@@ -1,5 +1,8 @@
+use std::fs;
+use std::path::Path;
+
 // External crates
-use html2md::*;
+use html2md::parse_html;
 // use crossterm::*;
 use reqwest::blocking;
 // use termimad::*;
@@ -23,15 +26,33 @@ fn main() {
 	let site = get_site(String::from(url));
 	
 	let md = match site {
-		Ok(data) => html2md::parse_html(data.as_str()),
+		Ok(data) => parse_html(data.as_str()),
 		Err(error) => panic!("Failed to download site: {}", error)
 	};
+
+	create_file(md, url);
 }
 
 fn get_site(url: String) -> Result<String, Box<dyn std::error::Error>> {
-	println!("Getting!");
-	let site = reqwest::blocking::get(&url)?
+	let site = blocking::get(&url)?
 		.text()?;
 	
 	Ok(site)
+}
+
+fn create_file(markdown: String, url: &str) -> std::io::Result<()> {
+	if Path::new("./content/").is_dir() == false { create_directory() }
+
+	let new_url = url.replace("https://", "").replace("http://", "").replace("/", ".");
+
+	let mut path = String::from("content/") + &new_url + ".md";
+	path = path.replace("..", ".");
+
+	fs::write(path, markdown.as_bytes())?;
+
+	Ok(())
+}
+
+fn create_directory() {
+	fs::create_dir("./content").expect("Failed to create directory.");
 }
