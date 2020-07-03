@@ -5,6 +5,7 @@ use std::fs;
 use std::path::Path;
 use std::io::{stdout, Write};
 use std::process::exit;
+use std::time::Instant;
 
 // External crates
 use html2md::parse_html;
@@ -49,7 +50,7 @@ impl Url {
 	}
 
 	fn get_root(url: String) -> String {
-		let new_url = url.replace("http://", "").replace("https://", "");
+		let new_url = url.replace("http://", "").replace("https://", ""); // strips protocol
 		let url_without_path: Vec<&str> = new_url.split("/").collect();
 
 		let name: Vec<&str> = url_without_path[0].split(".").collect();
@@ -75,6 +76,7 @@ fn main() {
 			.required(true)
 		).get_matches();
 
+	let timing = Instant::now();
 	let url = Url::new(String::from(clap.value_of("download").unwrap())); // Parsed url (inner is raw user input)
 	
 	set_status(style("Starting download...\n").with(Color::Cyan));
@@ -105,7 +107,7 @@ fn main() {
 		}
 	};
 
-	set_status(style("\nFinished successfully.\n").with(Color::Green).attribute(Attribute::Underlined));
+	set_status(style(&format!("\nFinished successfully in {}ms.\n", timing.elapsed().as_millis())[..]).with(Color::Green).attribute(Attribute::Underlined));
 }
 
 fn get_site(url: &String) -> std::result::Result<String, std::boxed::Box<dyn std::error::Error>> { // Scrapes HTML from specified url
