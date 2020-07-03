@@ -17,6 +17,53 @@ use crossterm::{
 use reqwest::blocking;
 use clap::{App, Arg};
 
+struct Url {
+	original: String, // original url passed by calling Url::new()
+	parsed: String, // fully-qualified url
+	root: String, // root of url
+	url_path: String // url converted to valid file path
+}
+
+impl Url {
+	fn new(original: String) -> Url {
+		let parsed_url = Url::parse(original.to_string());
+		let url_root = Url::get_root(parsed_url.to_string());
+		let url_path = Url::get_url_path(&parsed_url);
+		
+		Url {
+			original: original.to_string(),
+			parsed: parsed_url,
+			root: url_root,
+			url_path: url_path
+		}
+	}
+
+	fn parse(mut url: String) -> String {// Parses user-provided input
+		if url.starts_with("http") == false { // not a fully-qualified url, doesn't contain http/https
+			url.insert_str(0, "http://"); // in case sites don't have https
+		}
+
+		if url.ends_with("/") == false {
+			url.push_str("/");
+		}
+
+		url
+	}
+
+	fn get_root(url: String) -> String {
+		let new_url = url.replace("http://", "").replace("https://", "");
+		let url_without_path: Vec<&str> = new_url.split("/").collect();
+
+		let name: Vec<&str> = url_without_path[0].split(".").collect();
+
+		format!("{}.{}", name[name.len() - 2], name[name.len() - 1]) // ignores subdomains
+	}
+
+	fn get_url_path(url: &String) -> String {
+		url.to_string().replace("https://", "").replace("http://", "").replace("/", ".").replace("..", ".")
+	}
+}
+
 fn main() {
 	set_status(style("Laggar:\n")); // Sets terminal window to "Laggar"
 	let clap = App::new("Laggar")
@@ -31,13 +78,13 @@ fn main() {
 			.required(true)
 		).get_matches();
 
-	let url = parse_url(String::from(clap.value_of("download").unwrap())); // Parsed url (inner is raw user input)
+	let url = Url::new(String::from(clap.value_of("download").unwrap())); // Parsed url (inner is raw user input)
 	
 	set_status(style("Starting download...\n").with(Color::Cyan));
 	
-	let site = get_site(&url); // HTML from url
+	let site = get_site(&url.parsed); // HTML from url
 
-	set_status(style(&format!("Downloaded {}.\n", &url.as_str())[..]).with(Color::Yellow));
+	set_status(style(&format!("Downloaded {}.\n", &url.original.as_str())[..]).with(Color::Yellow));
 
 	let md = match site {
 		Ok(data) => { // site scraping goes smoothly
@@ -52,7 +99,7 @@ fn main() {
 
 	set_status(style("Creating file...\n").with(Color::Cyan));
 
-	match create_file(md, &url) {
+	match create_file(md, &url.url_path) {
 		// generating file/directory goes smoothly
 		Ok(path) => set_status(style(&format!("Created file at {}.\n", Path::new(&path).display())[..]).with(Color::Yellow)),
 		Err(error) => { // generating file/directory fails
@@ -64,14 +111,6 @@ fn main() {
 	set_status(style("\nFinished successfully.\n").with(Color::Green).attribute(Attribute::Underlined));
 }
 
-fn parse_url(mut url: String) -> String { // Parses user-provided input
-	if url.starts_with("http") == false {
-		url.insert_str(0, "http://");
-	}
-
-	url
-}
-
 fn get_site(url: &String) -> std::result::Result<String, std::boxed::Box<dyn std::error::Error>> { // Scrapes HTML from specified url
 	let site = blocking::get(url)?
 		.text()?;
@@ -81,11 +120,7 @@ fn get_site(url: &String) -> std::result::Result<String, std::boxed::Box<dyn std
 
 fn create_file(markdown: String, url: &str) -> Result<String> { // Generates file (and "content" directory if necessary) and fills it with markdown from html
 	if Path::new("./content/").is_dir() == false { create_directory() }
-
-	let new_url = url.replace("https://", "").replace("http://", "").replace("/", ".");
-
-	let mut path = String::from("content/") + &new_url + ".md";
-	path = path.replace("..", ".");
+	let path = String::from("content/") + url + ".md";
 
 	fs::write(&path, markdown.as_bytes())?;
 
