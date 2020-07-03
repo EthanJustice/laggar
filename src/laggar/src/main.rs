@@ -18,7 +18,6 @@ use reqwest::blocking;
 use clap::{App, Arg};
 
 struct Url {
-	original: String, // original url passed by calling Url::new()
 	parsed: String, // fully-qualified url
 	root: String, // root of url
 	url_path: String // url converted to valid file path
@@ -28,10 +27,9 @@ impl Url {
 	fn new(original: String) -> Url {
 		let parsed_url = Url::parse(original.to_string());
 		let url_root = Url::get_root(parsed_url.to_string());
-		let url_path = Url::get_url_path(&parsed_url);
+		let url_path = Url::get_url_path(&parsed_url, &url_root);
 		
 		Url {
-			original: original.to_string(),
 			parsed: parsed_url,
 			root: url_root,
 			url_path: url_path
@@ -59,13 +57,12 @@ impl Url {
 		format!("{}.{}", name[name.len() - 2], name[name.len() - 1]) // ignores subdomains
 	}
 
-	fn get_url_path(url: &String) -> String {
-		url.to_string().replace("https://", "").replace("http://", "").replace("/", ".").replace("..", ".")
+	fn get_url_path(url: &String, domain: &String) -> String {
+		url.to_string().replace("https://", "").replace("http://", "").replace("/", ".").replace("..", ".").replace(format!("{}.", domain).as_str(), "")
 	}
 }
 
 fn main() {
-	set_status(style("Laggar:\n")); // Sets terminal window to "Laggar"
 	let clap = App::new("Laggar")
 		.version("0.1.0")
 		.author("Ethan Justice")
@@ -84,7 +81,7 @@ fn main() {
 	
 	let site = get_site(&url.parsed); // HTML from url
 
-	set_status(style(&format!("Downloaded {}.\n", &url.original.as_str())[..]).with(Color::Yellow));
+	set_status(style(&format!("Downloaded {}\n", &url.parsed.as_str())[..]).with(Color::Yellow));
 
 	let md = match site {
 		Ok(data) => { // site scraping goes smoothly
@@ -99,9 +96,9 @@ fn main() {
 
 	set_status(style("Creating file...\n").with(Color::Cyan));
 
-	match create_file(md, &url.url_path) {
+	match create_file(md, &url) {
 		// generating file/directory goes smoothly
-		Ok(path) => set_status(style(&format!("Created file at {}.\n", Path::new(&path).display())[..]).with(Color::Yellow)),
+		Ok(path) => set_status(style(&format!("Created file at {}\n", Path::new(&path).display())[..]).with(Color::Yellow)),
 		Err(error) => { // generating file/directory fails
 			set_status(style(&format!("\n\nFailed to generate markdown.\nError: {}\n", error)[..]).with(Color::Red));
 			exit(1) // exits process
@@ -118,17 +115,20 @@ fn get_site(url: &String) -> std::result::Result<String, std::boxed::Box<dyn std
 	Ok(site)
 }
 
-fn create_file(markdown: String, url: &str) -> Result<String> { // Generates file (and "content" directory if necessary) and fills it with markdown from html
-	if Path::new("./content/").is_dir() == false { create_directory() }
-	let path = String::from("content/") + url + ".md";
+fn create_file(markdown: String, url: &Url) -> Result<String> { // Generates file (and "content" directory if necessary) and fills it with markdown from html
+	if Path::new("./content/").is_dir() == false { create_directory(String::from("./content/")) }
+	if Path::new(&format!("./content/{}", url.root)).is_dir() == false { create_directory(format!("./content/{}", url.root)) }
 
+	let path = format!("./content/{}/{}md", url.root, &url.url_path);
 	fs::write(&path, markdown.as_bytes())?;
 
-	Ok(path)
+	Ok(path) // returned to print path
 }
 
-fn create_directory() { // Creates directory if needed
-	fs::create_dir("./content").expect("Failed to create directory.");
+fn create_directory(path: String) { // Creates directory if needed
+	set_status(style(&format!("Creating directory at {}\n", Path::new(&path).display())[..]).with(Color::Yellow));
+
+	fs::create_dir(path).expect("Failed to create directory.");
 }
 
 fn set_status(status: StyledContent<&str>) -> Result<()> { // Prints status to terminal; sets terminal window title
