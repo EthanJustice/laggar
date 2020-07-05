@@ -9,8 +9,9 @@ Direct dependencies: [reqwest](https://crates.io/crates/reqwest), [html2md](http
 + ~~Subfolders of `/content/` based on domain (e.g. `/content/name.tld/`), for better legibility (pages are only path from root (e.g. `/content/name.tld/page.md`)~~
 + ~~Timing~~
 + Settings (content folder name, etc.)
-+ Fix file for domain roots not having an extension
-+ Tests for urls
++ ~~Fix file for domain roots not having an extension~~
++ ~~Tests for urls~~
++ URL normalization
 
 ## Build
 
@@ -20,6 +21,8 @@ To build, download the repository, then navigate to src/laggar and run `cargo bu
 
 1. Navigate to the folder where you've installed the `laggar.exe` binary ([Build instructions](#build))
 2. Run `laggar {command}` (see [Commands](#commands))
+
+**Note: the default file name for a root domain (e.g. `https://github.com/`) is /content/{root}/ROOT.md**
 
 ### Commands
 

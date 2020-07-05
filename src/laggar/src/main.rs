@@ -84,7 +84,10 @@ fn create_file(markdown: String, url: &Url) -> Result<String> { // Generates fil
 	if Path::new("./content/").is_dir() == false { create_directory(String::from("./content/")) }
 	if Path::new(&format!("./content/{}", url.root)).is_dir() == false { create_directory(format!("./content/{}", url.root)) }
 
-	let path = format!("./content/{}/{}md", url.root, &url.url_path);
+	let mut url_path = url.url_path.clone();
+	if url_path == String::from("") { url_path = String::from("ROOT.") }
+
+	let path = format!("./content/{}/{}md", url.root, url_path);
 	fs::write(&path, markdown.as_bytes())?;
 
 	Ok(path) // returned to print path
