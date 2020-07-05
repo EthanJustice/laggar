@@ -29,7 +29,7 @@ impl Url {
 		url
 	}
 
-	fn get_root(url: String) -> String {
+	fn get_root(url: String) -> String { // gets root of provided url
 		let new_url = url.replace("http://", "").replace("https://", ""); // strips protocol
 		let url_without_path: Vec<&str> = new_url.split("/").collect();
 
@@ -38,7 +38,37 @@ impl Url {
 		format!("{}.{}", name[name.len() - 2], name[name.len() - 1]) // ignores subdomains
 	}
 
-	fn get_url_path(url: &String, domain: &String) -> String {
+	fn get_url_path(url: &String, domain: &String) -> String { // formats url path to file system compatible version
 		url.to_string().replace("https://", "").replace("http://", "").replace("/", ".").replace("..", ".").replace(format!("{}.", domain).as_str(), "")
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	#[test]
+	fn check_urls() {
+		let domain_no_trail = Url::new(String::from("https://example.com"));
+		let domain_no_prot = Url::new(String::from("example.com/about"));
+		let domain_no_prot_no_trail = Url::new(String::from("example.com"));
+		let sub_domain_no_trail = Url::new(String::from("https://example.example.com/")); // not an actual subdomain, but works for tests
+		
+		// parsed
+		assert_eq!(domain_no_trail.parsed, String::from("https://example.com/"));
+		assert_eq!(domain_no_prot.parsed, String::from("http://example.com/about/"));
+		assert_eq!(domain_no_prot_no_trail.parsed, String::from("http://example.com/"));
+		assert_eq!(sub_domain_no_trail.parsed, String::from("https://example.example.com/"));
+
+		// roots
+		assert_eq!(domain_no_trail.root, String::from("example.com"));
+		assert_eq!(domain_no_prot.root, String::from("example.com"));
+		assert_eq!(domain_no_prot_no_trail.root, String::from("example.com"));
+		assert_eq!(sub_domain_no_trail.root, String::from("example.com"));
+
+		// url_paths
+		assert_eq!(domain_no_trail.url_path, String::from(""));
+		assert_eq!(domain_no_prot.url_path, String::from("about."));
+		assert_eq!(domain_no_prot_no_trail.url_path, String::from(""));
+		assert_eq!(sub_domain_no_trail.url_path, String::from("example."));
 	}
 }

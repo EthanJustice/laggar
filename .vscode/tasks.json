@@ -19,5 +19,11 @@
 			"command": "cd src/laggar\ncargo build",
 			"problemMatcher": []
 		},
+		{
+			"label": "tests",
+			"type": "shell",
+			"command": "cd src/laggar\ncargo test",
+			"problemMatcher": []
+		}
 	]
 }
