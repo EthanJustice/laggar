@@ -7,10 +7,10 @@ Direct dependencies: [reqwest](https://crates.io/crates/reqwest), [html2md](http
 
 + Continuous integration (platform binaries)
 + ~~Subfolders of `/content/` based on domain (e.g. `/content/name.tld/`), for better legibility (pages are only path from root (e.g. `/content/name.tld/page.md`)~~
-+ Clean error logging in TUI, full errors in `/logs/`
 + ~~Timing~~
-+ Download logging (maybe timing for each individual piece)
-+ Settings (maybe image downloading)
++ Settings (content folder name, etc.)
++ Fix file for domain roots not having an extension
++ Tests for urls
 
 ## Build
 

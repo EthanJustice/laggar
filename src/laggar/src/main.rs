@@ -77,14 +77,17 @@ fn main() {
 		).get_matches();
 
 	let timing = Instant::now();
+
 	let url = Url::new(String::from(clap.value_of("download").unwrap())); // Parsed url (inner is raw user input)
 	
 	set_status(style("Starting download...\n").with(Color::Cyan));
-	
+
+	let download_timing = Instant::now();
 	let site = get_site(&url.parsed); // HTML from url
 
-	set_status(style(&format!("Downloaded {}\n", &url.parsed.as_str())[..]).with(Color::Yellow));
+	set_status(style(&format!("Downloaded {} in {}ms\n", &url.parsed.as_str(), download_timing.elapsed().as_millis())[..]).with(Color::Yellow));
 
+	let parse_timing = Instant::now();
 	let md = match site {
 		Ok(data) => { // site scraping goes smoothly
 			set_status(style("Parsing...\n").with(Color::Cyan));
@@ -95,12 +98,14 @@ fn main() {
 			exit(1) // exits process
 		}
 	};
+	set_status(style(&format!("Parsed in {}ms\n", parse_timing.elapsed().as_millis())[..]).with(Color::Yellow));
 
 	set_status(style("Creating file...\n").with(Color::Cyan));
 
+	let file_create_timing = Instant::now();
 	match create_file(md, &url) {
 		// generating file/directory goes smoothly
-		Ok(path) => set_status(style(&format!("Created file at {}\n", Path::new(&path).display())[..]).with(Color::Yellow)),
+		Ok(path) => set_status(style(&format!("Created file at {} in {}ms\n", Path::new(&path).display(), file_create_timing.elapsed().as_millis())[..]).with(Color::Yellow)),
 		Err(error) => { // generating file/directory fails
 			set_status(style(&format!("\n\nFailed to generate markdown.\nError: {}\n", error)[..]).with(Color::Red));
 			exit(1) // exits process
