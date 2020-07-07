@@ -5,7 +5,7 @@ Direct dependencies: [reqwest](https://crates.io/crates/reqwest), [html2md](http
 
 ## Roadmap
 
-+ Continuous integration (platform binaries)
++ ~~Continuous integration (platform binaries)~~
 + ~~Subfolders of `/content/` based on domain (e.g. `/content/name.tld/`), for better legibility (pages are only path from root (e.g. `/content/name.tld/page.md`)~~
 + ~~Timing~~
 + Settings (content folder name, etc.)
