@@ -29,12 +29,11 @@ jobs:
     
     - run: mkdir -p target/release/
 
-    - run: echo test > target/release/laggar-test.exe
+    - run: echo test > target/release/laggar.exe
 
     - uses: actions/upload-artifact@v2
       with:
-        name: linux
-        path: target/release/laggar-test.exe
+        path: target/release/laggar.exe
     
     - uses: actions/cache@v2
       name: Cache
