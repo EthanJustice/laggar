@@ -33,6 +33,7 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
+        name: laggar-${{ matrix.os }}
         path: target/release/laggar.exe
     
     - uses: actions/cache@v2
