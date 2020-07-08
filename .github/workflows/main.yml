@@ -14,7 +14,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            artifact: laggar-linux-amd64
+          - os: windows-latest
+            artifact: laggar-windows
+          - os: macos-latest
+            artifact: laggar-macos-amd64
 
     steps:
     - uses: actions/checkout@v2
@@ -33,7 +39,7 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: laggar-${{ matrix.os }}
+        name: laggar-${{ matrix.artifact }}
         path: target/release/laggar.exe
     
     - uses: actions/cache@v2
