@@ -3,8 +3,11 @@ name = "laggar"
 version = "0.9.2"
 authors = ["EthanJustice <47954690+EthanJustice@users.noreply.github.com>"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+readme = "README.md"
+homepage = "https://github.com/EthanJustice/laggar"
+repository = "https://github.com/EthanJustice/laggar"
+license = "MIT"
+publish = false
 
 [dependencies]
 crossterm = "~0.17.5"
