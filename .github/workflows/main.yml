@@ -3,45 +3,33 @@ name: Rust
 on:
   push:
     branches: [ master ]
+    tags: '*'
   pull_request:
     branches: [ master ]
-
-env:
-  CARGO_TERM_COLOR: always
 
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+
     strategy:
       matrix:
+        build: [macos-latest, linux, win-msvc, win32-msvc]
         include:
-          - os: ubuntu-latest
-            artifact: laggar-linux-amd64
-          - os: windows-latest
-            artifact: laggar-windows
-          - os: macos-latest
-            artifact: laggar-macos-amd64
+        - project_name: laggar
+        - build: linux
+          os: ubuntu-latest
+          name: x86_64-unknown-linux-musl
+        - build: macos-latest
+          os: macos-latest
+          name: x86_64-apple-darwin
+        - build: win-msvc
+          os: windows-2019
+          name: x86_64-pc-windows-msvc
+        - build: win32-msvc
+          os: windows-2019
+          name: i686-pc-windows-msvc
 
     steps:
-    - uses: actions/checkout@v2
-    
-    - name: Build
-      run: cargo build --release
-    
-    - name: Run tests
-      run: cargo test --verbose
-    
-    - uses: actions/checkout@v2
-    
-    - run: mkdir -p target/release/
-
-    - run: echo test > target/release/laggar.exe
-
-    - uses: actions/upload-artifact@v2
-      with:
-        name: laggar-${{ matrix.artifact }}
-        path: target/release/laggar.exe
-    
     - uses: actions/cache@v2
       name: Cache
       with:
@@ -50,3 +38,19 @@ jobs:
           ~/.cargo/git
           target
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+    - uses: actions/checkout@v2
+    - name: Build
+      run: cargo build --release
+    
+    - name: Run tests
+      run: cargo test --verbose
+    
+    - uses: actions/checkout@v2
+    - run: mkdir -p target/release/
+    - run: echo test > target/release/${{ matrix.name }}.exe # replace name with binary name
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.project_name }}-v-${{ matrix.name }}
+        path: target/release/${{ matrix.name }}.exe
