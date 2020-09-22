@@ -1,15 +1,16 @@
+use std::ffi::OsString;
 pub struct Url {
 	pub parsed: String, // fully-qualified url
 	pub root: String, // root of url
-	pub url_path: String // url converted to valid file path
+	pub url_path: OsString // url converted to valid file path
 }
 
 impl Url {
 	pub fn new(original: String) -> Url {
 		let parsed_url = Url::parse(original.to_string());
 		let url_root = Url::get_root(parsed_url.to_string());
-		let url_path = Url::get_url_path(&parsed_url, &url_root);
-		
+		let url_path = OsString::from(Url::get_url_path(&parsed_url, &url_root));
+
 		Url {
 			parsed: parsed_url,
 			root: url_root,

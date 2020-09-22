@@ -6,6 +6,7 @@ use std::path::Path;
 use std::io::{stdout, Write};
 use std::process::exit;
 use std::time::Instant;
+use std::ffi::OsString;
 
 // External crates
 use html2md::parse_html;
@@ -85,9 +86,9 @@ fn create_file(markdown: String, url: &Url) -> Result<String> { // Generates fil
 	if Path::new(&format!("./content/{}", url.root)).is_dir() == false { create_directory(format!("./content/{}", url.root)) }
 
 	let mut url_path = url.url_path.clone();
-	if url_path == String::from("") { url_path = String::from("ROOT.") }
+	if url_path == OsString::from("") { url_path = OsString::from("ROOT.") }
 
-	let path = format!("./content/{}/{}md", url.root, url_path);
+	let path = format!("./content/{}/{:?}md", url.root, url_path);
 	fs::write(&path, markdown.as_bytes())?;
 
 	Ok(path) // returned to print path

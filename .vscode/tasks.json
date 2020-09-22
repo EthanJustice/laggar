@@ -5,6 +5,15 @@
 			"label": "run",
 			"type": "shell",
 			"command": "cargo run",
+			"dependsOn": [
+				"clippy"
+			],
+			"problemMatcher": []
+		},
+		{
+			"label": "clippy",
+			"type": "shell",
+			"command": "cargo clippy",
 			"problemMatcher": []
 		},
 		{
