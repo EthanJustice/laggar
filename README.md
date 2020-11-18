@@ -2,21 +2,14 @@
 
 site-to-markdown converter
 
-![Rust](https://github.com/EthanJustice/laggar/workflows/Rust/badge.svg)
-
-Direct dependencies: [reqwest](https://crates.io/crates/reqwest), [html2md](https://crates.io/crates/html2md), [crossterm](https://crates.io/crates/crossterm), and [clap](https://crates.io/crates/clap).
+![Build](https://github.com/EthanJustice/laggar/workflows/Rust/badge.svg)
 
 ## Roadmap
 
 + Fix CI not caching dependencies
-+ ~~Continuous integration (platform binaries)~~
-+ ~~Subfolders of `/content/` based on domain (e.g. `/content/name.tld/`), for better legibility (pages are only path from root (e.g. `/content/name.tld/page.md`)~~
-+ ~~Timing~~
++ Custom output file paths
 + Settings (content folder name, etc.)
-+ ~~Fix file for domain roots not having an extension~~
-+ ~~Tests for urls~~
 + URL normalization
-+ OS path normalization ([OsString](https://doc.rust-lang.org/std/ffi/struct.OsString.html))
 
 ## Build
 
